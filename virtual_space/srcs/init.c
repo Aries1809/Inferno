@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <sys/mman.h>
 #include <sys/types.h>
-#include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -52,6 +51,10 @@ int main(void){
   if (!ptr){
     return 1;
   }
+  minos(100);
+  minos(144);
+  minos(10000);
+  minos(0);
   heap_dump(ptr);
   printf("\n");
   heap_check(ptr);
