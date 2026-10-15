@@ -1,6 +1,7 @@
 build
 .xmake
 memory
+ignore
 
 # Prerequisites
 *.d
