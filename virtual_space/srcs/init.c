@@ -52,8 +52,8 @@ int main(void){
   if (!ptr){
     return 1;
   }
-  for(unsigned long i = 0; i < sizeof(memhead); i++){
-    printf("Byte %zu: %i\n", i, ptr[i]);
-  }
+  heap_dump(ptr);
+  printf("\n");
+  heap_check(ptr);
   return 0;
 }
