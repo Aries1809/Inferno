@@ -2,7 +2,8 @@
 
 #include <stdint.h>
 
-#define SPACE (1024 * 1024 * 256)
+#define MEMORY memory_init();
+#define SPACE (uint64_t)(1024 * 1024 * 256)
 #define FREE 33
 #define USED 11
 #define VERSION 00
