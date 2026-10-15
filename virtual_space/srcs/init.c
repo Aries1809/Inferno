@@ -22,7 +22,9 @@ void *init_memhead(void *ptr){
 }
 
 void *memory_init(void){
-  int32_t fd = open("/home/kseltenr/nerdstuff/projects/c/Inferno/memory",
+  char *path = getcwd(NULL, 0);
+  strlcat(path, "/memory", 1024);
+  int32_t fd = open(path,
       O_CREAT | O_RDWR, 00666);
   if (fd == -1){
     perror("open");
