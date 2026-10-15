@@ -73,7 +73,7 @@ void heap_check(void *ptr){
       break;
     temp = (uint8_t *)heap + heap->next;
     heap = (memhead *)temp;
-    if (!heap){
+    if (!heap->magic){
       printf("Incorrect next value... Terminating check\n");
       break;
     }
