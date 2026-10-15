@@ -18,3 +18,4 @@ typedef struct memhead {
 void *memory_init(void);
 void heap_dump(void *ptr);
 void heap_check(void *ptr);
+void *minos(uint32_t size);
