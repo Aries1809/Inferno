@@ -5,13 +5,17 @@
 #include <sys/types.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "map.h"
 
 void *init_memhead(void *ptr){
   memhead *head = ptr;
-  if (head->magic != 0 && head->version == VERSION)
+  if (head->magic != 0 && head->version == VERSION){
+    printf("\nMemory file found: Skipping init\n");
     return ptr;
+  }
+  printf("\nMemory file not found: Creating memory...\n");
   head->size = SPACE;
   head->magic = FREE;
   head->version = VERSION;
@@ -22,10 +26,12 @@ void *init_memhead(void *ptr){
 }
 
 void *memory_init(void){
-  char *path = getcwd(NULL, 0);
+  char *path = malloc(1024);
+  getcwd(path, 1024);
   strlcat(path, "/memory", 1024);
   int32_t fd = open(path,
       O_CREAT | O_RDWR, 00666);
+  free(path);
   if (fd == -1){
     perror("open");
     return NULL;
@@ -49,10 +55,11 @@ void *memory_init(void){
 }
 
 int main(void){
-  char *ptr = memory_init();
+  uint8_t *ptr = MEMORY;
   if (!ptr){
     return 1;
   }
+  printf("\nmemory address: %p\n\n", ptr);
   minos(100);
   minos(144);
   minos(10000);
