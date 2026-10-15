@@ -2,13 +2,15 @@
 
 #include <stdint.h>
 
-#define FREE 3333
-#define USED 1111
+#define SPACE 1024 * 1024 * 256
+#define FREE 33
+#define USED 11
+#define VERSION 00
 
 typedef struct memhead {
   uint64_t size;
   uint8_t magic;
   uint8_t version;
-  void *next;
-  void *back;
+  int64_t *next;
+  int64_t *back;
 } memhead;
