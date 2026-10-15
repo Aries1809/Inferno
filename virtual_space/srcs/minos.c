@@ -1,30 +1,39 @@
 #include <stdint.h>
 #include <stddef.h>
+#include <stdio.h>
+#include <inttypes.h>
 
 #include "map.h"
 
 void *minos(uint32_t size){
-  memhead *ptr = memory_init();
+  memhead *ptr = MEMORY;
   memhead *temp;
   uint8_t *conv;
-  uint32_t alloc;
+  uint64_t alloc;
 
-  if (!size)
+  printf("size: %"PRIu32"\n", size);
+  if (size == 0){
+    fprintf(stderr, "Error: Size must be greater than 0\n");
     return NULL;
+  }
   if (((size + sizeof(memhead)) % 16) == 0)
     alloc = size + sizeof(memhead);
   else
     alloc = (((size + sizeof(memhead)) / 16) * 16) + 16;
   while (ptr->magic != FREE || ptr->size < alloc){
-    if (ptr->version != VERSION)
+    if (ptr->version != VERSION){
+      fprintf(stderr, "Error: Outdated header\n");
       return NULL;
+    }
 
     if (ptr->next != 0){
       conv = (uint8_t *)ptr + ptr->next;
       ptr = (memhead *)conv;
     }
-    else
+    else{
+      fprintf(stderr, "Error: No suitable memory found\n");
       return NULL;
+    }
   }
 
   uint64_t ptr_size = ptr->size;
