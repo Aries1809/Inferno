@@ -14,6 +14,7 @@ void heap_dump(void *ptr){
   while (1){
     fprintf(stdout, "      %"PRIu64".      \n\n", id);
     fprintf(stdout, "offset: %"PRIu64"\n", offset);
+    fprintf(stdout, "minos: %"PRIu64"\n", (offset + sizeof(memhead)));
     fprintf(stdout, "size: %"PRIu64"\n", heap->size);
     fprintf(stdout, "magic: %"PRIu8"\n", heap->magic);
     fprintf(stdout, "version: %"PRIu8"\n", heap->version);

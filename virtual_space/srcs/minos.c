@@ -37,7 +37,9 @@ void *minos(uint32_t size){
 
   uint64_t ptr_size = ptr->size;
   uint64_t next = ptr->next;
+  temp = (void *)ptr - ptr->back;
 
+  ptr->offset = temp->offset + alloc;
   ptr->magic = USED;
   ptr->size = alloc;
   ptr->next = alloc;

@@ -20,6 +20,7 @@ void *init_memhead(void *ptr){
   } else{
     fprintf(stdout, "\nMemory file not found: Creating memory...\n");
   }
+  head->offset = 0;
   head->size = SPACE;
   head->magic = FREE;
   head->version = VERSION;
@@ -57,19 +58,4 @@ void *memory_init(void){
   ret = init_memhead(ret);
   fprintf(stdout, "\n");
   return ret;
-}
-
-int main(void){
-  uint8_t *ptr = MEMORY;
-  if (!ptr){
-    return 1;
-  }
-  minos(100);
-  minos(144);
-  minos(10000);
-  minos(0);
-  heap_dump(ptr);
-  printf("\n");
-  heap_check(ptr);
-  return 0;
 }
