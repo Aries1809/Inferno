@@ -7,21 +7,27 @@
 void heap_dump(void *ptr){
   memhead *heap = ptr;
   uint8_t *temp;
+  uint64_t offset = 0;
+  uint64_t id = 1;
 
-  printf("\n- - - HEAP DUMP - - -\n\n");
+  fprintf(stdout, "\n- - - HEAP DUMP - - -\n\n");
   while (1){
-    printf("size: %"PRIu64"\n", heap->size);
-    printf("magic: %"PRIu8"\n", heap->magic);
-    printf("version: %"PRIu8"\n", heap->version);
-    printf("next: %"PRIu64"\n", heap->next);
-    printf("back: %"PRIu64"\n", heap->back);
+    fprintf(stdout, "      %"PRIu64".      \n\n", id);
+    fprintf(stdout, "offset: %"PRIu64"\n", offset);
+    fprintf(stdout, "size: %"PRIu64"\n", heap->size);
+    fprintf(stdout, "magic: %"PRIu8"\n", heap->magic);
+    fprintf(stdout, "version: %"PRIu8"\n", heap->version);
+    fprintf(stdout, "next: %"PRIu64"\n", heap->next);
+    fprintf(stdout, "back: %"PRIu64"\n", heap->back);
+    offset += heap->size;
+    id++;
     if (!heap->next){
-      printf("\n- - - - - END - - - - -\n\n");
+      fprintf(stdout, "\n- - - - - END - - - - -\n\n");
       break;
     }
     temp = (uint8_t *)heap + heap->next;
     heap = (memhead *)temp;
-    printf("\n- - - - - - - - - - -\n\n");
+    fprintf(stdout, "\n- - - - - - - - - - -\n\n");
   }
 }
 
@@ -29,6 +35,7 @@ void heap_check(void *ptr){
   memhead *heap = ptr;
   uint8_t *temp;
   uint64_t mem_cnt = 0;
+  uint64_t msmch_cnt = 0;
   uint64_t mult_cnt = 0;
   uint64_t mag_cnt = 0;
   uint64_t b_check = 0;
@@ -37,28 +44,32 @@ void heap_check(void *ptr){
   uint64_t f_cnt = 0;
   uint8_t err = 0;
 
-  printf("- - - HEAP CHECK - - -\n\n");
+  fprintf(stdout, "- - - HEAP CHECK - - -\n\n");
   while(1){
     mem_cnt += heap->size;
     if ((heap->size % 16) != 0){
-      printf("size is not a multiple of 16: %"PRIu64"\n", heap->size);
+      fprintf(stderr, "size is not a multiple of 16: %"PRIu64"\n", heap->size);
       mult_cnt += 1;
     }
     if ((heap->next % 16) != 0){
-      printf("next is not a multiple of 16: %"PRIu64"\n", heap->next);
+      fprintf(stderr, "next is not a multiple of 16: %"PRIu64"\n", heap->next);
       mult_cnt += 1;
     }
+    if ((heap->next != heap->size) && (heap->next != 0)){
+      fprintf(stderr, "next doesn't match size: %"PRIu64" - %"PRIu64"\n", heap->next, heap->size);
+      msmch_cnt += 1;
+    }
     if (heap->magic != USED && heap->magic != FREE){
-      printf("Invalid magic number: %"PRIu8"\n", heap->magic);
+      fprintf(stderr, "Invalid magic number: %"PRIu8"\n", heap->magic);
       mag_cnt += 1;
     }
     if (heap->back != b_check){
-      printf("Incorrect back value: %"PRIu64"\n", heap->back);
+      fprintf(stderr, "Incorrect back value: %"PRIu64"\n", heap->back);
       b_cnt += 1;
     }
     if (heap->magic == FREE){
       if (f_check == 1){
-        printf("Free blocks next to each other\n");
+        fprintf(stderr, "Free blocks next to each other\n");
         f_cnt += 1;
       }
       else{
@@ -73,33 +84,42 @@ void heap_check(void *ptr){
       break;
     temp = (uint8_t *)heap + heap->next;
     heap = (memhead *)temp;
-    if (!heap->magic){
-      printf("Incorrect next value... Terminating check\n");
-      break;
+    if (heap){
+      if (!heap->magic){
+        fprintf(stderr, "Incorrect next value... Terminating check\n");
+        break;
+      }
+    } else{
+        fprintf(stderr, "Incorrect next value... Terminating check\n");
+        break; 
     }
   }
   if (mem_cnt != SPACE){
-    printf("Heap size doesn't match mmapped size: %"PRIu64"\n", mem_cnt);
+    fprintf(stderr, "Heap size doesn't match mmapped size: %"PRIu64"\n", mem_cnt);
+    err = 1;
+  }
+  if (msmch_cnt){
+    fprintf(stderr, "Total amount of next-size missmatches: %"PRIu64"\n", msmch_cnt);
     err = 1;
   }
   if (mult_cnt){
-    printf("Total amount of non 16 multiples: %"PRIu64"\n", mult_cnt);
+    fprintf(stderr, "Total amount of non 16 multiples: %"PRIu64"\n", mult_cnt);
     err = 1;
   }
   if (mag_cnt){
-    printf("Total amount of invalid magic numbers: %"PRIu64"\n", mag_cnt);
+    fprintf(stderr, "Total amount of invalid magic numbers: %"PRIu64"\n", mag_cnt);
     err = 1;
   }
   if (b_cnt){
-    printf("Total amount of incorrect back values: %"PRIu64"\n", b_cnt);
+    fprintf(stderr, "Total amount of incorrect back values: %"PRIu64"\n", b_cnt);
     err = 1;
   }
   if (f_cnt){
-    printf("Total amount of free blocks next to each other: %"PRIu64"\n", f_cnt);
+    fprintf(stderr, "Total amount of free blocks next to each other: %"PRIu64"\n", f_cnt);
     err = 1;
   }
   if (!err)
-    printf("No memory management error was found\n");
-  printf("\n- - - - - END - - - - -\n\n");
+    fprintf(stdout, "No memory management error was found\n");
+  fprintf(stdout, "\n- - - - - END - - - - -\n\n");
   return;
 }

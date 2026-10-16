@@ -11,7 +11,6 @@ void *minos(uint32_t size){
   uint8_t *conv;
   uint64_t alloc;
 
-  printf("size: %"PRIu32"\n", size);
   if (size == 0){
     fprintf(stderr, "Error: Size must be greater than 0\n");
     return NULL;

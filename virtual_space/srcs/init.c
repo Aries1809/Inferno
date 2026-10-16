@@ -4,7 +4,6 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <stdint.h>
-#include <string.h>
 #include <stdlib.h>
 
 #include "map.h"
@@ -15,7 +14,12 @@ void *init_memhead(void *ptr){
     printf("\nMemory file found: Skipping init\n");
     return ptr;
   }
-  printf("\nMemory file not found: Creating memory...\n");
+  if (head->magic != 0 && head->version){
+    fprintf(stdout, "\nMemory file found: Outdated header...\n");
+    fprintf(stdout, "Scrap old data: Creating memory...\n");
+  } else{
+    fprintf(stdout, "\nMemory file not found: Creating memory...\n");
+  }
   head->size = SPACE;
   head->magic = FREE;
   head->version = VERSION;
@@ -26,12 +30,12 @@ void *init_memhead(void *ptr){
 }
 
 void *memory_init(void){
-  char *path = malloc(1024);
-  getcwd(path, 1024);
-  strlcat(path, "/memory", 1024);
-  int32_t fd = open(path,
+  static void *ret;
+  if (ret){
+    return ret;
+  }
+  int32_t fd = open("/home/kseltenr/nerdstuff/projects/c/Inferno/memory",
       O_CREAT | O_RDWR, 00666);
-  free(path);
   if (fd == -1){
     perror("open");
     return NULL;
@@ -41,7 +45,7 @@ void *memory_init(void){
     close(fd);
     return NULL;
   }
-  void *ret = mmap(NULL, SPACE,
+  ret = mmap(NULL, SPACE,
       PROT_READ | PROT_WRITE,
       MAP_SHARED, fd, 0);
   if (ret == MAP_FAILED){
@@ -51,7 +55,8 @@ void *memory_init(void){
   }
   close(fd);
   ret = init_memhead(ret);
-  return(ret);
+  fprintf(stdout, "\n");
+  return ret;
 }
 
 int main(void){
@@ -59,7 +64,6 @@ int main(void){
   if (!ptr){
     return 1;
   }
-  printf("\nmemory address: %p\n\n", ptr);
   minos(100);
   minos(144);
   minos(10000);
